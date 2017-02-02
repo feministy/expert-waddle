@@ -66,11 +66,11 @@ class Sudoku
   end
 
   def row(number)
-    @rows[number++]
+    @rows[number+=1]
   end
 
   def column(number)
-    @columns[number++]
+    @columns[number+=1]
   end
 
   protected
