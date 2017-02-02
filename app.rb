@@ -1,26 +1,26 @@
 # Represents a single cell in the Sudoku puzzle.
 # Coordinates are offered by @row and @cell (1-9)
-# A cell is considered solved when the @value != 0
+# A cell is considered solved when the @solution != 0
 # Cells are required to have coordinates.
-# Cell value defaults to 0 and must be set manually for solved cells.
+# Cell solution defaults to 0 and must be set manually for solved cells.
 class Cell
-  attr_reader :row, :column, :value, :possible_solutions
+  attr_reader :row, :column, :solution, :possible_solutions
 
-  def initialize(row, column, value = 0)
+  def initialize(row, column, solution = 0)
     @row = row
     @column = column
-    @value = value
+    @solution = solution
     @possible_solutions = []
   end
 
   def solve
     if @possible_solutions.length == 1
-      @value = @possible_solutions.pop
+      @solution = @possible_solutions.pop
     end
   end
 
   def solved?
-    !@value.zero?
+    !@solution.zero?
   end
 
   def coordinates
@@ -32,7 +32,16 @@ class LinearGroup
   attr_reader :cells
 
   def solved?
-    @cells.length == 9 && @cells.all? { |cell| cell.solved?  }
+    @cells.length == 9 && @cells.all? { |cell| cell.solved? } && valid_solution
+  end
+
+  def solutions
+    @cells.map { |cell| cell.solution }
+  end
+
+  protected
+  def valid_solution
+    solutions.uniq.sort == [1, 2, 3, 4, 5, 6, 7, 8, 9]
   end
 end
 
