@@ -1,4 +1,4 @@
-require 'app'
+require_relative 'app'
 
 cells = []
 
@@ -97,4 +97,4 @@ coords = [
 coords.each { |coord| cells << Cell.new(coord[0], coord[1], coord[2]) }
 
 sudoku = Sudoku.new(cells)
-sudoku.grids
+puts sudoku.solved?

@@ -1,5 +1,10 @@
+# No Gemfile here sorry I ain't sorry
+# (I have these installed for my Ruby version)
+require 'pry'
+require 'pry-nav'
+
 # Represents a single cell in the Sudoku puzzle.
-# Coordinates are offered by @row and @cell (1-9)
+# Coordinates are offered by @row and @column (1-9)
 # A cell is considered solved when the @solution != 0
 # Cells are required to have coordinates.
 # Cell solution defaults to 0 and must be set manually for solved cells.
@@ -26,9 +31,15 @@ class Cell
   def coordinates
     [@row, @column]
   end
+
+  def to_s
+    "row: #{@row}, column: #{@column}"
+  end
 end
 
-class LinearGroup
+# Parent class for groups of cells. Used by Row, Column, and Grid.
+# Provides shared methods for checking and validating solutions.
+class CellGroup
   attr_reader :cells
 
   def solved?
@@ -45,13 +56,27 @@ class LinearGroup
   end
 end
 
-class Row < LinearGroup
+# Collection of 9 cells that belong in a grid.
+# Grids are numbered from top to right, with the top left being 1
+# and the bottom right being 9.
+class Grid < CellGroup
+  attr_reader :position
+
+  def initialize(cells, position)
+    @cells = cells
+    @position = position
+  end
+end
+
+# Collection of cells that belong in the same column row.
+class Row < CellGroup
   def initialize(cells)
     @cells = cells.sort_by(&:column)
   end
 end
 
-class Column < LinearGroup
+# Collection of cells that belong in the same column.
+class Column < CellGroup
   def initialize(cells)
     @cells = cells.sort_by(&:row)
   end
@@ -102,28 +127,23 @@ class Sudoku
     groups.each { |row, cells| @columns << Column.new(cells) }
   end
 
-  # Grids are ordered left to right, top to bottom, 1-9.
-  # The top left grid is one, the bottom right grid is 9.
   def build_grids
-    # [c,r]
-    # [1,1][2,1][3,1] [1,2][2,2][3,2] [1,3][2,3][3,3]
+    row_starts = [1, 4, 7]
+    grid_maps = []
 
-    # [c,r]
-    # [4,1][5,1][6,1] [4,2][5,2][6,2] [4,3][5,3][6,3]
+    # After spending too many hours of my life on this,
+    # I am pretty pleased that I ame up with a solution... even though it's
+    # a bit heavy handed. I'll make this better later :)
+    row_starts.each do |start|
+      starts = [start, start+1, start+2]
+      columns = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+      columns.each do |col_starts|
+        grid_maps << @cells.select do |cell|
+          col_starts.include?(cell.column) && starts.include?(cell.row)
+        end
+      end
+    end
 
-    # increment cols as you make new grids
-    # grids 1-3, rows 1-3
-    # grids 4-6, rows 4-6
-    # grids 7-9, rows 7-9
-
-    # 1: cols 1-3, rows 1-3
-    # 2: cols 4-6, rows 1-3
-    # 3: cols 7-9, rows 1-3
-    # 4: cols 1-3, rows 4-6
-    # 5: cols 4-6, rows 4-6
-    # 6: cols 7-9, rows 4-6
-    # 7: cols 1-3, rows 7-9
-    # 8: cols 4-6, rows 7-9
-    # 9: cols 7-9, rows 7-9
+    @grids = grid_maps.each_with_index { |grid, index| Grid.new(grid, index+1) }
   end
 end
