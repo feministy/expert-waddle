@@ -5,18 +5,19 @@
 # Cell solution defaults to 0 and must be set manually for solved cells.
 class Cell
   attr_reader :row, :column, :solution
-  attr_accessor :possible_solutions
+  attr_accessor :possible_solutions, :test_solutions
 
   def initialize(row, column, solution = 0)
     @row = row
     @column = column
     @solution = solution
     @possible_solutions = []
+    @test_solutions = []
   end
 
   def solve
-    if @possible_solutions.length == 1
-      @solution = @possible_solutions.pop
+    if @test_solutions.length == 1
+      @solution = @test_solutions.pop
     end
   end
 
@@ -40,6 +41,10 @@ class CellGroup
 
   def solved?
     @cells.length == 9 && @cells.all? { |cell| cell.solved? } && valid_solution
+  end
+
+  def unsolved
+    @cells.select { |cell| !cell.solved? }
   end
 
   def solutions
