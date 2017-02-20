@@ -16,41 +16,61 @@ class Sudoku
 
   # WIP! get the logic, clean it up :)
   def solve
+    find_possible_solutions
+    recursively_test_possible_solutions
+
+    if !solved?
+      # check and guess...?
+    end
+  end
+
+  def recursively_test_possible_solutions
+    @new_solve = false
+
+    unsolved_cells = @cells.select { |cell| !cell.solved? }
+    unsolved_cells.map { |cell| cell.test_solutions = [] }
+
+    unsolved_cells.each do |cell|
+      column = column(cell.column)
+      row = row(cell.row)
+      grid = grid(cell)
+
+      find_unique(cell, column)
+      find_unique(cell, row)
+      find_unique(cell, grid)
+      cell.solve
+
+      @new_solve = true if cell.solved?
+    end
+
+    # only start the recursive loop if we found a new solution
+    recursively_test_possible_solutions unless solved? || @new_solve
+  end
+
+  def find_possible_solutions
     unsolved_cells = @cells.select { |cell| !cell.solved? }
     unsolved_cells.each do |cell|
       column = column(cell.column)
       row = row(cell.row)
       grid = grid(cell)
 
-      missing_solutions = {}
-      missing_solutions[:column] = column.missing_solutions
-      missing_solutions[:row] = row.missing_solutions
-      missing_solutions[:grid] = grid.missing_solutions
+      missing = (column.missing_solutions + row.missing_solutions + grid.missing_solutions).uniq!
+      solutions = (column.solutions + row.solutions + grid.solutions).uniq!
 
-      solutions = {}
-      solutions[:column] = column.solutions
-      solutions[:row] = row.solutions
-      solutions[:grid] = grid.solutions
-
-      groups = [:column, :row, :grid]
-      missing_solutions.each do |key, missing|
-        check_list = groups
-        check_list.delete(key)
-        check_list.each do |group|
-          missing.delete_if { |invalid| solutions[group].include?(invalid) }
-          cell.possible_solutions << missing
-        end
-      end
-
-      cell.possible_solutions.flatten!.uniq!.sort!
-
-      # for debugging!
-      puts cell.possible_solutions.join(" - ")
+      cell.possible_solutions = missing - solutions
       cell.solve
 
       # for debugging!
       puts "solved a cell!" if cell.solved?
     end
+  end
+
+  def find_unique(cell, group)
+    group.unsolved.each do |group_cell|
+      unique = cell.possible_solutions - group_cell.possible_solutions
+      cell.test_solutions += unique if unique.length == 1
+    end
+    cell.test_solutions.uniq!
   end
 
   def solved?
