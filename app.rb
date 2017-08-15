@@ -47,7 +47,7 @@ class Sudoku
       find_unique(cell, grid)
       cell.solve
 
-      @new_solve = cell.solved?
+      @new_solve = true if cell.solved?
     end
 
     # only start the recursive loop if we found a new solution
