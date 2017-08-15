@@ -122,7 +122,7 @@ class Sudoku
     grid_maps = []
 
     # After spending too many hours of my life on this,
-    # I am pretty pleased that I ame up with a solution... even though it's
+    # I am pretty pleased that I came up with a solution... even though it's
     # a bit heavy handed. I'll make this better later :)
     row_starts.each do |start|
       starts = [start, start+1, start+2]
