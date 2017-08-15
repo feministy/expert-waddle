@@ -15,6 +15,12 @@ class Sudoku
   end
 
   # WIP! get the logic, clean it up :)
+  # General approach:
+  # - find all possible solutions for cells
+  # - check possible solutions to see if they are the only option for the coords
+  # - mark cell as solved if so
+  # If it is not solved... then...?
+  # Need to implement guess and check, or other method?? This is how I solve.
   def solve
     find_possible_solutions
     recursively_test_possible_solutions
@@ -24,6 +30,7 @@ class Sudoku
     end
   end
 
+  # TODO: there's a bug where duplicate solutions can be marked as correct
   def recursively_test_possible_solutions
     @new_solve = false
 
@@ -40,7 +47,7 @@ class Sudoku
       find_unique(cell, grid)
       cell.solve
 
-      @new_solve = true if cell.solved?
+      @new_solve = cell.solved?
     end
 
     # only start the recursive loop if we found a new solution
